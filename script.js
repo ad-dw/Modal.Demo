@@ -19,4 +19,11 @@ modalTriggerButtons.forEach((button) =>
   button.addEventListener("click", openModal)
 );
 
+const handleEscapeKey = function (event) {
+  if (event.key === "Escape") {
+    closeModal();
+  }
+};
+
 closeModalButton.addEventListener("click", closeModal);
+document.addEventListener("keydown", handleEscapeKey);
