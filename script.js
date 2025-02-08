@@ -26,4 +26,5 @@ const handleEscapeKey = function (event) {
 };
 
 closeModalButton.addEventListener("click", closeModal);
+overlayElement.addEventListener("click", closeModal);
 document.addEventListener("keydown", handleEscapeKey);
