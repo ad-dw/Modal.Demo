@@ -18,6 +18,29 @@ const openModal = function (event) {
   closeModalButton.focus();
 };
 
+const trapFocus = function (event) {
+  if (event.key === "Tab") {
+    event.preventDefault();
+    event.stopPropagation();
+    let nextFocusCanBeTaken = false;
+    let nextFocusableElement = null;
+    console.log(modalElement.children);
+    for (let node of modalElement.children) {
+      if (event.target === node) {
+        nextFocusCanBeTaken = true;
+        nextFocusableElement = node;
+      } else if (nextFocusCanBeTaken) {
+        if (node.getAttribute("data-focusable")) {
+          console.log("here", node);
+          nextFocusableElement = node;
+          break;
+        }
+      }
+    }
+    nextFocusableElement.focus();
+  }
+};
+
 const modalTriggerButtons = document.querySelectorAll(".show-modal");
 modalTriggerButtons.forEach((button) =>
   button.addEventListener("click", openModal)
@@ -30,5 +53,6 @@ const handleEscapeKey = function (event) {
 };
 
 closeModalButton.addEventListener("click", closeModal);
+modalElement.addEventListener("keydown", trapFocus);
 overlayElement.addEventListener("click", closeModal);
 document.addEventListener("keydown", handleEscapeKey);
