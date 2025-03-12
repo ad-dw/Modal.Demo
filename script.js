@@ -11,34 +11,39 @@ const closeModal = function () {
   modalTriggeringElement?.focus();
 };
 
+let modalChildren;
+
 const openModal = function (event) {
   modalElement.classList.remove("hidden");
   overlayElement.classList.remove("hidden");
   modalTriggeringElement = event.target;
+  modalChildren = [...modalElement.children];
   closeModalButton.focus();
 };
 
 const trapFocus = function (event) {
-  if (event.key === "Tab") {
-    event.preventDefault();
-    event.stopPropagation();
-    let nextFocusCanBeTaken = false;
-    let nextFocusableElement = null;
-    console.log(modalElement.children);
-    for (let node of modalElement.children) {
-      if (event.target === node) {
-        nextFocusCanBeTaken = true;
-        nextFocusableElement = node;
-      } else if (nextFocusCanBeTaken) {
-        if (node.getAttribute("data-focusable")) {
-          console.log("here", node);
-          nextFocusableElement = node;
-          break;
-        }
-      }
+  event.preventDefault();
+  let nextFocusableElement;
+  let index = modalChildren.findIndex((ele) => ele === event.target);
+  if (event.shiftKey && event.key === "Tab") {
+    if (!event.target.previousElementSibling) {
+      nextFocusableElement = modalChildren.findLast(
+        (ele) => ele.dataset.focusable
+      );
+    } else {
+      nextFocusableElement = modalChildren.findLast(
+        (ele, idx) => ele.dataset.focusable && idx < index
+      );
     }
-    nextFocusableElement.focus();
+  } else if (event.key === "Tab") {
+    nextFocusableElement = modalChildren.find(
+      (ele, idx) => ele.dataset.focusable && idx > index
+    );
+    if (!nextFocusableElement) {
+      nextFocusableElement = modalChildren.find((ele) => ele.dataset.focusable);
+    }
   }
+  nextFocusableElement?.focus();
 };
 
 const modalTriggerButtons = document.querySelectorAll(".show-modal");
@@ -52,7 +57,14 @@ const handleEscapeKey = function (event) {
   }
 };
 
+const handleKey = function (event) {
+  if (event.key === "Enter") {
+    closeModal();
+  }
+};
+
 closeModalButton.addEventListener("click", closeModal);
+closeModalButton.addEventListener("keydown", handleKey);
 modalElement.addEventListener("keydown", trapFocus);
 overlayElement.addEventListener("click", closeModal);
 document.addEventListener("keydown", handleEscapeKey);
